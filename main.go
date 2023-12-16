@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gofr.dev/pkg/gofr"
@@ -23,15 +25,17 @@ type House struct {
 	PostalCode  int     `bson:"postalCode"`
 	Price       float64 `bson:"price"`
 	ForSale     bool    `bson:"forSale"`
-	Available   bool    `bson:"available"`
+	Available   bool    `bson:"available"` //Shows whether the house is available for rent or not
 }
 
 func main() {
 	app := gofr.New()
 	app.GET("/start", StartHandler)
-	app.GET("/homes", HomesHandler)
+	app.GET("/homes", AllHomeHandler)
 	app.POST("/homes", CreateHomeHandler)
-	app.GET("/homes/:id", GetHomeHandler)
+	app.GET("/homes/{id}", GetHomeHandler)
+	app.PUT("/homes/{id}", UpdateHomeHandler)
+	app.DELETE("/homes/{id}", DeleteHomeHandler)
 	app.Start()
 }
 
@@ -55,7 +59,7 @@ func StartHandler(c *gofr.Context) (interface{}, error) {
 	return "Welcome to the Project!", nil
 }
 
-func HomesHandler(c *gofr.Context) (interface{}, error) {
+func AllHomeHandler(c *gofr.Context) (interface{}, error) {
 	collection := connectToDb()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -69,8 +73,9 @@ func HomesHandler(c *gofr.Context) (interface{}, error) {
 	defer cursor.Close(ctx)
 
 	var homes []House
-	if err := cursor.All(ctx, &homes); err != nil {
-		return nil, err
+	er := cursor.All(ctx, &homes)
+	if er != nil {
+		return nil, er
 	}
 
 	return homes, nil
@@ -83,7 +88,11 @@ func CreateHomeHandler(c *gofr.Context) (interface{}, error) {
 	defer cancel()
 
 	var newHome House
-
+	err := json.NewDecoder(c.Request().Body).Decode(&newHome)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(newHome)
 	res, err := collection.InsertOne(ctx, newHome)
 	if err != nil {
 		return nil, err
@@ -98,13 +107,57 @@ func GetHomeHandler(c *gofr.Context) (interface{}, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	id := c.Param("id")
-	fmt.Println(id)
+	id := c.PathParam("id")
+
 	var home House
-	err := collection.FindOne(ctx, bson.M{"_id": (id)}).Decode(&home)
+	parsedId, _ := primitive.ObjectIDFromHex(id)
+	fmt.Println("parsed: ", parsedId)
+
+	err := collection.FindOne(ctx, bson.M{"_id": (parsedId)}).Decode(&home)
 	if err != nil {
 		return nil, err
 	}
 
 	return home, nil
+}
+
+func UpdateHomeHandler(c *gofr.Context) (interface{}, error) {
+	collection := connectToDb()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var updatedHome House
+	err := json.NewDecoder(c.Request().Body).Decode(&updatedHome)
+	if err != nil {
+		return nil, err
+	}
+
+	id := c.PathParam("id")
+	parseId, _ := primitive.ObjectIDFromHex(id)
+
+	update := bson.M{"$set": updatedHome}
+	_, er := collection.UpdateOne(ctx, bson.M{"_id": parseId}, update)
+	if er != nil {
+		return nil, er
+	}
+
+	return "House Updated Successfully", nil
+}
+
+func DeleteHomeHandler(c *gofr.Context) (interface{}, error) {
+	collection := connectToDb()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	id := c.PathParam("id")
+	parseID, _ := primitive.ObjectIDFromHex(id)
+
+	_, err := collection.DeleteOne(ctx, bson.M{"_id": parseID})
+	if err != nil {
+		return nil, err
+	}
+
+	return "Deleted Successfully House", nil
 }
