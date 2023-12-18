@@ -5,10 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
-	"github.com/joho/godotenv"
 	"github.com/preritshrivastava2002/Management-System/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -18,12 +16,7 @@ import (
 )
 
 func connectToDb() *mongo.Collection {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Error Loading the file ", err)
-	}
-	uri := os.Getenv("MONOGDB_URI")
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("YOUR MONGODB_URL"))
 	if err != nil {
 		log.Fatal(err)
 	}
