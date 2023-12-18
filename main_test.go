@@ -17,8 +17,9 @@ func TestAllHomeHandler(t *testing.T) {
 	})
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
+
 	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 }
 
@@ -42,7 +43,7 @@ func TestCreateHomeHandler(t *testing.T) {
 	})
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
-	// Checking Status Code
+
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
@@ -54,15 +55,15 @@ func TestGetHomeHandler(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Setting the Handler for our route
+
 	handler := http.HandlerFunc(func(wr http.ResponseWriter, r *http.Request) {
 		wr.WriteHeader(http.StatusOK)
 	})
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
-	/// Checking Status Code
+
 	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 }
 
@@ -89,7 +90,7 @@ func TestUpdateHomeHandler(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
 }
@@ -99,14 +100,14 @@ func TestDeleteHomeHandler(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Setting the Handler for our route
+
 	handler := http.HandlerFunc(func(wr http.ResponseWriter, r *http.Request) {
 		wr.WriteHeader(http.StatusOK)
 	})
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
-	// Checking Status Code
+
 	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 }

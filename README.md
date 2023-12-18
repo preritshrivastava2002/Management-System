@@ -25,7 +25,7 @@
           go test
           
 <h2>Sequence Diagram</h2>
-![Screenshot (658)](https://github.com/preritshrivastava2002/Management-System/assets/75294012/a9cc3e91-0b83-461e-84e4-09b1bfbca225)
+<img src = "https://github.com/preritshrivastava2002/Management-System/assets/75294012/a9cc3e91-0b83-461e-84e4-09b1bfbca225">
 
 <h2>Postman Collection</h2>
 <p><a href = "https://github.com/preritshrivastava2002/Management-System/files/13698144/Postman.Test.Collection.json"> Postman Test Collection.json</p>
